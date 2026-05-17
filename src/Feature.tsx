@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  MeshNameInput,
   useNamedPeer,
   usePhase,
   useVotes,
@@ -71,15 +72,13 @@ function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
         </p>
       </header>
 
-      <div className="wr-name">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="your name"
-          maxLength={48}
-          aria-label="your name"
-        />
-      </div>
+      <MeshNameInput
+        value={name}
+        onChange={setName}
+        placeholder="your name"
+        maxLength={48}
+        className="wr-name"
+      />
 
       {phase === "composing" && (
         <form className="wr-prompt-form" onSubmit={setPrompt}>
