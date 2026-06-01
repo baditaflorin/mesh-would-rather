@@ -12,11 +12,10 @@ test("would-you-rather voting + reveal syncs to BOTH peers", async ({ browser, b
   try {
     await a.getByPlaceholder("your name").fill("alice");
     await b.getByPlaceholder("your name").fill("bob");
-    await a.waitForTimeout(400);
 
     // Alice composes the prompt — it (and the voting phase) must reach Bob.
-    await a.getByPlaceholder("option A").fill("tea");
-    await a.getByPlaceholder("option B").fill("coffee");
+    await a.getByLabel("option A").fill("tea");
+    await a.getByLabel("option B").fill("coffee");
     await a.getByRole("button", { name: "set prompt", exact: true }).click();
 
     await expect(b.locator(".wr-card-a")).toContainText("tea");
@@ -28,6 +27,11 @@ test("would-you-rather voting + reveal syncs to BOTH peers", async ({ browser, b
     // Split vote: alice picks A, bob picks B.
     await a.getByRole("button", { name: "I'd rather A", exact: true }).click();
     await b.getByRole("button", { name: "I'd rather B", exact: true }).click();
+
+    // Local vote feedback: each voter's chosen card is marked as "mine" and the
+    // button flips to the confirmation label.
+    await expect(a.locator(".wr-card-a[data-mine='true']")).toBeVisible();
+    await expect(b.locator(".wr-card-b[data-mine='true']")).toBeVisible();
 
     // Alice reveals — the reveal phase must propagate to Bob.
     await a.getByRole("button", { name: "reveal", exact: true }).click();
@@ -49,9 +53,9 @@ test("would-you-rather voting + reveal syncs to BOTH peers", async ({ browser, b
     // A clear-winner case so we also prove the tally is not hard-coded 50/50:
     // both advance to next round, alice re-composes, then BOTH vote A.
     await a.getByRole("button", { name: "next round", exact: true }).click();
-    await expect(b.getByPlaceholder("option A")).toBeVisible();
-    await a.getByPlaceholder("option A").fill("dogs");
-    await a.getByPlaceholder("option B").fill("cats");
+    await expect(b.getByLabel("option A")).toBeVisible();
+    await a.getByLabel("option A").fill("dogs");
+    await a.getByLabel("option B").fill("cats");
     await a.getByRole("button", { name: "set prompt", exact: true }).click();
     await expect(b.locator(".wr-card-a")).toContainText("dogs");
 

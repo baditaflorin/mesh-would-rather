@@ -62,13 +62,16 @@ function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
   const aCount = votes.tally.get("a") ?? 0;
   const bCount = votes.tally.get("b") ?? 0;
   const winner = aCount === bCount ? null : aCount > bCount ? "a" : "b";
+  const alone = room.peerCount < 1;
+  const phaseLabel =
+    phase === "composing" ? "write a prompt" : phase === "voting" ? "vote" : "results";
 
   return (
     <div className="wr-screen">
       <header className="wr-header">
         <h1>{config.appName}</h1>
         <p className="wr-status">
-          round {round + 1} · {phase}
+          round {round + 1} · {phaseLabel}
         </p>
       </header>
 
@@ -85,20 +88,31 @@ function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
           <input
             value={draftA}
             onChange={(e) => setDraftA(e.target.value)}
-            placeholder="option A"
+            placeholder="Would you rather… (option A)"
             maxLength={80}
             aria-label="option A"
           />
           <input
             value={draftB}
             onChange={(e) => setDraftB(e.target.value)}
-            placeholder="option B"
+            placeholder="…or this? (option B)"
             maxLength={80}
             aria-label="option B"
           />
-          <button type="submit" className="wr-set-prompt" aria-label="set prompt">
+          <button
+            type="submit"
+            className="wr-set-prompt"
+            aria-label="set prompt"
+            disabled={!draftA.trim() || !draftB.trim()}
+          >
             set prompt
           </button>
+          {alone && (
+            <p className="wr-hint">
+              You&apos;re the only one here. Open this page in a second tab (or share the 📡 invite
+              link) so someone can vote — then write a prompt above.
+            </p>
+          )}
         </form>
       )}
 
@@ -108,8 +122,13 @@ function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
             const text = opt === "a" ? optA : optB;
             const count = opt === "a" ? aCount : bCount;
             const pct = votes.pctOf(opt);
+            const mine = votes.myVote === opt;
             return (
-              <div key={opt} className={`wr-card wr-card-${opt}`}>
+              <div
+                key={opt}
+                className={`wr-card wr-card-${opt}${mine ? " wr-card-mine" : ""}`}
+                data-mine={mine ? "true" : undefined}
+              >
                 <div className="wr-card-text">{text}</div>
                 {phase === "voting" && (
                   <button
@@ -118,7 +137,7 @@ function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
                     disabled={phase !== "voting" || !name.trim()}
                     aria-label={`I'd rather ${opt.toUpperCase()}`}
                   >
-                    I'd rather {opt.toUpperCase()}
+                    {mine ? `✓ your pick` : `I'd rather ${opt.toUpperCase()}`}
                   </button>
                 )}
                 {phase === "reveal" && (
@@ -141,14 +160,23 @@ function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
       )}
 
       {phase === "voting" && (
-        <button
-          type="button"
-          className="wr-reveal"
-          aria-label="reveal"
-          onClick={() => phaseState.transition("reveal", { from: "voting" })}
-        >
-          reveal
-        </button>
+        <>
+          <p className="wr-hint">
+            {!name.trim()
+              ? "Type your name above to vote."
+              : votes.myVote
+                ? `You picked ${votes.myVote.toUpperCase()} · ${votes.totalVotes} vote${votes.totalVotes === 1 ? "" : "s"} in — tap reveal when everyone's voted.`
+                : `Pick a side · ${votes.totalVotes} vote${votes.totalVotes === 1 ? "" : "s"} in so far.`}
+          </p>
+          <button
+            type="button"
+            className="wr-reveal"
+            aria-label="reveal"
+            onClick={() => phaseState.transition("reveal", { from: "voting" })}
+          >
+            reveal
+          </button>
+        </>
       )}
 
       {phase === "reveal" && (
