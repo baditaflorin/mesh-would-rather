@@ -4,7 +4,11 @@
 [![version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/baditaflorin/mesh-would-rather/blob/main/package.json)
 [![license](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 
-> Would-you-rather A/B vote with reveal phase.
+> One person poses a "would you rather A or B?", everyone votes, then the room reveals the split.
+
+Write two options, the whole room picks a side, and **reveal** shows the live tally with a winner — then go again with a fresh prompt.
+
+**Try it in 30 seconds:** open the live link below, type a name, then open the same page in a second tab with a different name. Write a prompt in one tab, vote in both, and hit **reveal**.
 
 **Live → https://baditaflorin.github.io/mesh-would-rather/**
 

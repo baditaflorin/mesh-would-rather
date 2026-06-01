@@ -105,10 +105,23 @@ body,
   transition: opacity 0.2s ease;
 }
 
+.wr-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  line-height: 1.45;
+  text-align: center;
+}
+
 .wr-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
+}
+
+.wr-card-mine {
+  border-color: var(--mesh-accent);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .wr-card {
